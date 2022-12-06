@@ -1,0 +1,61 @@
+##################################################
+# Common Settings
+##################################################
+
+# All Files
+[*]
+charset = utf-8
+# indent_size intentionally not specified in this section.
+indent_style = space # Use soft tabs (spaces) for indentation.
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+max_line_length = 120
+end_of_line = crlf
+insert_final_newline = true
+
+##########################################
+# General Extension Settings
+##########################################
+
+# Markdown files
+[*.md]
+indent_size = 2
+trim_trailing_whitespace = false
+
+# JSON files
+[*.json]
+indent_size = 2
+
+# XML files
+[*.{xml,xaml}]
+indent_size = 2
+
+# YAML files
+[*.{yml,yaml}]
+indent_size = 2
+indent_style = space
+
+# Web Files
+[*.{htm,html,js,jsm,ts,tsx,cjs,cts,ctsx,mjs,mts,mtsx,css,sass,scss,less,pcss,svg,vue}]
+indent_size = 2
+
+##########################################
+# Scripting Extension Settings
+##########################################
+
+# Batch Files
+[*.{cmd,bat}]
+end_of_line = crlf
+
+# Bash Files
+[*.sh]
+end_of_line = lf
+
+# PowerShell scripts
+[*.ps1]
+indent_size = 2
+
+# Makefiles
+[Makefile]
+indent_style = tab

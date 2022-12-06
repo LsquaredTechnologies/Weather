@@ -1,0 +1,45 @@
+mode: ContinuousDeployment
+
+major-version-bump-message: '^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?(!:|:.*\\n\\n((.+\\n)+\\n)?BREAKING CHANGE:\\s.+)'
+minor-version-bump-message: '^(feat)(\\([\\w\\s-]*\\))?:'
+patch-version-bump-message: '^(fix|perf|refactor)(\\([\\w\\s-]*\\))?:'
+no-bump-message: '^(build|chore|ci|docs|revert|style|test)(\\([\\w\\s-]*\\))?:'
+
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatch
+assembly-informational-format: '{InformationalVersion}'
+continuous-delivery-fallback-tag: beta
+tag-prefix: '[vV]'
+
+increment: None
+merge-message-formats:
+  ado: '^Merged (?:PR (?<PullRequestNumber>\d+)): Merge (?<SourceBranch>.+) to (?<TargetBranch>.+)'
+
+branches:
+  main:
+    regex: ^main$
+    tag: ''
+    prevent-increment-of-merged-branch-version: true
+  release:
+    regex: ^release[/-]|^rc[/-]
+    tag: rc
+    source-branches: ["main"]
+    is-release-branch: true
+  feature:
+    regex: ^feat(ure)?[/-]
+    increment: Minor
+    tag: useBranchName
+    source-branches: ["release","main"]
+  bugfix:
+    regex: ^(bug)?fix[/-]
+    increment: Patch
+    tag: useBranchName
+    source-branches: ["feature","release","main"]
+  chore:
+    regex: ^chore[/-]
+    tag: useBranchName
+    source-branches: ["release","main"]
+  dev:
+    regex: ^dev(elop)?[/-]
+    tag: alpha
+    source-branches: ["main"]
