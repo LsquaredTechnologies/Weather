@@ -1,0 +1,139 @@
+*,
+*:after,
+*:before {
+    box-sizing: border-box;
+}
+
+img {
+    height: auto;
+    width: auto;
+    max-width: 100%;
+}
+
+.info {
+    border: 1px solid darkred;
+    padding: .5rem;
+}
+
+.row {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-direction: row;
+    padding: 1rem;
+    width: 100%;
+}
+
+img.back {
+    object-fit: cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+}
+
+section {
+    width: 90%;
+    max-width: 960px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(240, 240, 240, .75);
+    color: #333;
+    margin: .5rem auto;
+    padding: .5rem;
+    font-size: 16pt;
+}
+
+    section.form {
+    }
+
+        section.form .row {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+            section.form .row label {
+                width: 100%;
+            }
+
+                section.form .row label + input {
+                    width: 80%;
+                }
+
+            section.form .row input,
+            section.form .row button {
+                padding: .25rem;
+                font-size: 14pt;
+            }
+
+    section.weather {
+    }
+
+        section.weather img.flag {
+            width: 48px;
+            margin: 0 4px;
+        }
+
+        section.weather img.weather {
+            width: 96px;
+        }
+
+        section.weather .row:nth-child(3) {
+            flex-direction: column;
+        }
+
+        section.weather .row:nth-last-child(1),
+        section.weather .row:nth-last-child(2) {
+            justify-content: space-around;
+        }
+
+            section.weather .row:nth-last-child(1) span,
+            section.weather .row:nth-last-child(2) span {
+                background-color: rgba(240, 240, 240, .75);
+                width: 25%;
+            }
+
+    section.forecast {
+        flex-direction: row;
+        flex-flow: wrap;
+    }
+
+        section.forecast article {
+            border-top: 2px solid darkred;
+            border-bottom: 2px solid darkred;
+            width: calc(20% - 1rem);
+            margin: -2px .5rem 0 .5rem;
+        }
+
+            section.forecast article .row {
+                padding: .5rem;
+            }
+
+        section.forecast img {
+            width: 64px;
+        }
+
+.cities {
+    text-align: initial;
+    list-style: none;
+    padding: 1rem;
+    width: 100%;
+}
+
+    .cities li {
+        padding: .25rem;
+        cursor: pointer;
+    }
+
+        .cities li:hover {
+            background-color: darkred;
+            color: #fefefe;
+        }

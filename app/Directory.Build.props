@@ -1,0 +1,11 @@
+<Project>
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <NoWarn>CA1716</NoWarn>
+		<RootNamespace>Lsquared.Apps</RootNamespace>
+  </PropertyGroup>
+
+</Project>

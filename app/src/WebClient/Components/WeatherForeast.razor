@@ -1,0 +1,193 @@
+@if (BackgroundImageSrc is not null)
+{
+    <img class=back src=@BackgroundImageSrc alt=@BackgroundImageAltText />
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+
+<section class=form>
+    <div class=row>
+        <label for=city>Taper le nom d'une ville&nbsp;:</label>
+        <input type=text name=city placeholder="Taper le nom d'une ville" autocomplete=off spellcheck=false @bind-value=CityNameOrZipCode @onkeyup=OnKeyUp />
+        <button type="submit" @onclick=GetWeatherAndForecast>
+            <i class="fa fa-magnifying-glass-location"></i>
+        </button>
+    </div>
+    @if (ErrorMessage is not null)
+    {
+        <span class=error>@ErrorMessage</span>
+    }
+    @if (ConflictCities is not null)
+    {
+        <ol class=cities>
+            @foreach (var city in ConflictCities)
+            {
+                <li @key=@city><span @onclick=@(() => GetWeatherAndForecast(city))>@city.Name, @city.Country</span></li>
+            }
+        </ol>
+    }
+
+    @if (IsLoading)
+    {
+        <Loading />
+    }
+</section>
+
+@if (Weather is not null)
+{
+    var w = Weather;
+    <section class=weather>
+        <div class=row>
+            <span>@w?.City?.Name</span>
+            <img class=flag src="/imgs/flags/@(w?.City?.Country)_64.png" alt=@w?.City?.Country />
+        </div>
+
+        <div class=row>
+            <span>@DateTimeOffset.Now.ToString("D") @DateTimeOffset.Now.ToString("HH:mm")</span>
+        </div>
+
+        <div class=row>
+            <span>@w?.Current?.Temperature?.Actual</span>
+            <img class=weather src="//openweathermap.org/img/wn/@w?.Current?.Icon@@2x.png" alt=@w?.Current?.Description />
+            <span>@w?.Current?.Description</span>
+        </div>
+
+        <div class=row>
+            <span class=info>Levé du soleil&nbsp;: @w?.Sunrise!.Value.ToString("HH:mm")</span>
+            <span class=info>Couché du soleil&nbsp;: @w?.Sunset!.Value.ToString("HH:mm")</span>
+        </div>
+
+        <div class=row>
+            <span class=info>Humidité&nbsp;: @w?.Current?.Humidity?.Relative</span>
+            <span class=info>Vent&nbsp;: @w?.Current?.Wind?.Speed</span>
+            <span class=info>Ressenti&nbsp;: @w?.Current?.Temperature?.FeelsLike</span>
+        </div>
+    </section>
+}
+@if (Forecast is not null)
+{
+    <section class=forecast>
+        @foreach (var item in Forecast.Items.Take(10))
+        {
+            <article>
+                <div class=row>
+                    <span>@item.Time!.Value.ToString("HH:mm")</span>
+                </div>
+                <div class=row>
+                    <img src="//openweathermap.org/img/wn/@item.Icon@@2x.png" alt=@item.Description />
+                </div>
+                <div class=row>
+                    <span>@item.Temperature?.Actual</span>
+                </div>
+                <div class=row>
+                    <span>@item.Wind?.Speed</span>
+                </div>
+            </article>
+        }
+    </section>
+}
+
+@using System.Net;
+@using System.Globalization;
+@inject HttpClient HttpClient
+@code {
+    private CurrentWeather? Weather { get; set; }
+    private ForecastWeather? Forecast { get; set; }
+    private string? CityNameOrZipCode { get; set; }
+    private List<City>? ConflictCities { get; set; }
+    private bool IsLoading { get; set; }
+    private string? BackgroundImageSrc { get; set; }
+    private string? BackgroundImageAltText { get; set; }
+    private string? Season { get; set; }
+    private string? ErrorMessage { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Season = DateTimeOffset.Now switch
+        {
+            { Month: var m, Day: var d } when m is 12 && d >= 20 => "winter",
+            { Month: var m, Day: var d } when m is 1 => "winter",
+            { Month: var m, Day: var d } when m is 2 => "winter",
+            { Month: var m, Day: var d } when m is 3 && d < 20 => "winter",
+            { Month: var m, Day: var d } when m is 3 && d >= 20 => "spring",
+            { Month: var m, Day: var d } when m is 4 => "spring",
+            { Month: var m, Day: var d } when m is 5 => "spring",
+            { Month: var m, Day: var d } when m is 6 && d < 20 => "spring",
+            { Month: var m, Day: var d } when m is 6 && d > 20 => "summer",
+            { Month: var m, Day: var d } when m is 7 => "summer",
+            { Month: var m, Day: var d } when m is 8 => "summer",
+            { Month: var m, Day: var d } when m is 9 && d < 20 => "summer",
+            { Month: var m, Day: var d } when m is 9 && d >= 20 => "autumn",
+            { Month: var m, Day: var d } when m is 10 => "autumn",
+            { Month: var m, Day: var d } when m is 11 => "autumn",
+            { Month: var m, Day: var d } when m is 12 && d < 20 => "autumn",
+        };
+
+        BackgroundImageSrc = $"/imgs/{Season}.jpg";
+        BackgroundImageAltText = Season;
+
+        base.OnInitialized();
+    }
+
+    private async Task OnKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key is "Enter")
+            await GetWeatherAndForecast();
+    }
+
+    private async Task GetWeatherAndForecast()
+    {
+        IsLoading = true;
+        try
+        {
+            var res = await HttpClient.GetAsync($"/weather/{CityNameOrZipCode}")!;
+            if (res.StatusCode is HttpStatusCode.Conflict)
+            {
+                ConflictCities = await res.Content.ReadFromJsonAsync<List<City>>();
+                return;
+            }
+            if (res.StatusCode is HttpStatusCode.TooManyRequests)
+            {
+                ErrorMessage = "Trop de requêtes. Merci de patientez un moment...";
+                return;
+            }
+
+            Forecast = null;
+            Weather = null;
+            ConflictCities = null;
+
+            if (res.IsSuccessStatusCode)
+                Weather = await res.Content.ReadFromJsonAsync<CurrentWeather>();
+
+            Forecast = await HttpClient.GetFromJsonAsync<ForecastWeather>($"/forecast/{CityNameOrZipCode}")!;
+        }
+        finally
+        {
+
+            IsLoading = false;
+        }
+    }
+
+    private async Task GetWeatherAndForecast(City city)
+    {
+        IsLoading = true;
+        try
+        {
+            ConflictCities = null;
+
+            var query = FormattableString.Invariant($"lat={city.Latitude}&lng={city.Longitude}");
+
+            var weatherTask = HttpClient.GetFromJsonAsync<CurrentWeather>($"/weather?{query}")!;
+            var forecastTask = HttpClient.GetFromJsonAsync<ForecastWeather>($"/forecast?{query}")!;
+
+            await Task.WhenAll(weatherTask, forecastTask);
+
+            Weather = await weatherTask;
+            Forecast = await forecastTask;
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+	<PropertyGroup>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Remove="wwwroot\index.app.html" />
+	  <Content Remove="wwwroot\index.custom_element.html" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Using Include="Lsquared.Apps" />
+		<Using Include="Lsquared.Apps.Components" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Components.CustomElements" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="7.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="7.0.0" PrivateAssets="all" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Shared\Lsquared.Apps.WeatherForecast.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="wwwroot\index.*.html" />
+	</ItemGroup>
+
+</Project>
