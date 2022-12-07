@@ -6,13 +6,16 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY *.sln .
-COPY **/*.csproj .
+COPY *.props .
+COPY src/Shared/*.csproj ./src/Shared/
+COPY src/WebApi/*.csproj ./src/WebApi/
+COPY src/WebClient/*.csproj ./src/WebClient/
 RUN dotnet restore
 COPY . .
-RUN dotnet build src/WebApi -c Release -r linux-x64 -o /app/build
+RUN dotnet build src/WebApi -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish src/WebApi -c Release -r linux-x64 -o /app/publish
+RUN dotnet publish src/WebApi -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
