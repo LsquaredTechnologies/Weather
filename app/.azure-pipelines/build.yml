@@ -39,7 +39,7 @@ steps:
 - script: |
     dotnet tool install GitVersion.Tool --tool-path $(Agent.ToolsDirectory)/dotnet/tools
     $(Agent.ToolsDirectory)/dotnet/tools/dotnet-gitversion /output json /output buildserver /updateprojectfiles
-  displayName: SemVer GitVersion Install
+  displayName: SemVer GitVersion
 
 - script: dotnet restore --nologo
   displayName: Restore
@@ -49,7 +49,7 @@ steps:
   displayName: Build
   workingDirectory: app
 
-- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -p:PublishProfile=DefaultContainer -t:PublishContainer -p:"ContainerImageTags=$(GitVersion.SemVer);latest"
+- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -t:PublishContainer -p:PublishProfile=DefaultContainer
   displayName: Create OCI Image
   workingDirectory: app
 
