@@ -11,23 +11,12 @@ _ = builder.Services.AddSwaggerGen();
 _ = builder.Services.AddRateLimiter((options) =>
 {
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
-    options.AddSlidingWindowLimiter("sliding 15/hour", (options) =>
+    options.AddSlidingWindowLimiter("sliding", (options) =>
     {
         options.QueueLimit = 15;
         options.PermitLimit = 15;
         options.Window = TimeSpan.FromHours(1);
-    });
-    options.AddSlidingWindowLimiter("sliding 300/day", (options) =>
-    {
-        options.QueueLimit = 300;
-        options.PermitLimit = 300;
-        options.Window = TimeSpan.FromHours(24);
-    });
-    options.AddSlidingWindowLimiter("sliding 8000/month", (options) =>
-    {
-        options.QueueLimit = 8000;
-        options.PermitLimit = 8000;
-        options.Window = TimeSpan.FromHours(24 * 30);
+        options.SegmentsPerWindow = 12;
     });
 });
 
@@ -56,7 +45,7 @@ if (!webapp.Environment.IsProduction())
 
 _ = webapp.UseRateLimiter();
 _ = webapp.UseSwagger();
-_ = webapp.MapControllers();
+_ = webapp.MapControllers().RequireRateLimiting("sliding");
 
 // Host Blazor client
 _ = webapp.UseStaticFiles();
