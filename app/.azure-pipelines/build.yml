@@ -49,7 +49,7 @@ steps:
   displayName: Build
   workingDirectory: app
 
-- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -p:PublishProfile=DefaultContainer -t:PublishContainer -p:ContainerImageTags=${GITVERSION_SEMVER};latest
+- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -p:PublishProfile=DefaultContainer -t:PublishContainer -p:ContainerImageTags=${GitVersion_SemVer};latest
   displayName: Create OCI Image
   workingDirectory: app
 
