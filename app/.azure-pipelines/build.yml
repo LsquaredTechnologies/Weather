@@ -47,7 +47,7 @@ steps:
   displayName: Build Application
   workingDirectory: app
 
-- script: docker build -t $(GitVersion.SemVer) latest -f src/WebApi/Dockerfile .
+- script: docker build -f src/WebApi/Dockerfile -t lsquared/weather:$(GitVersion.SemVer) -t lsquared/weather:latest .
   displayName: Create OCI Image
   workingDirectory: app
 
