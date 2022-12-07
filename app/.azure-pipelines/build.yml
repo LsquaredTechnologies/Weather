@@ -49,15 +49,18 @@ steps:
   displayName: Build
   workingDirectory: app
 
-- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -p:PublishProfile=DefaultContainer -t:PublishContainer -p:ContainerImageTags=$(GitVersion.SemVer);latest
+- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -p:PublishProfile=DefaultContainer -t:PublishContainer -p:ContainerImageTags="$(GitVersion.SemVer);latest"
   displayName: Create OCI Image
   workingDirectory: app
 
-- task: Docker@2
-  displayName: Push OCI Image to DockerHub
+- task: DownloadSecureFile@1
   inputs:
-    containerRegistry: 'LsquaredTechnologies DockerHub'
-    command: 'push'
-    tags: |
-      $(GitVersion_SemVer)
-      latest
+    secureFile: dockerhub_pat.key
+    retryCount: 2
+
+- script: |
+    cat dockerhub_pat.key | docker login --username lsquared --password-stdin
+    docker push lsquared/apps_weather:$(GitVersion.SemVer)
+    docker push lsquared/apps_weather:latest
+  displayName: Push OCI Image to DockerHub
+  condition: ne(variables['Build.Reason'], 'PullRequest')
