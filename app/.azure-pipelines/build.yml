@@ -47,7 +47,7 @@ steps:
   displayName: Build Application
   workingDirectory: app
 
-- script: dotnet publish --nologo --no-restore src/WebApi -r linux-x64 -c $(buildConfiguration) --os linux --arch x64 -t:PublishContainer -p:PublishProfile=DefaultContainer
+- script: dotnet publish --nologo src/WebApi -c $(buildConfiguration) --os linux --arch x64 -t:PublishContainer -p:PublishProfile=DefaultContainer
   displayName: Create OCI Image
   workingDirectory: app
 
