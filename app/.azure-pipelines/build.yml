@@ -1,0 +1,65 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+    - app
+    exclude:
+    - app/.azure-pipelines
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+    - app
+    exclude:
+    - app/.azure-pipelines
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dotnetVersion: '7.0'
+  buildConfiguration: 'Release'
+
+steps:
+
+- checkout: self
+  fetchDepth: 0
+
+- task: UseDotNet@2
+  displayName: 'Install .NET $(dotnetVersion) SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '$(dotnetVersion).x'
+
+- script: |
+    dotnet tool install GitVersion.Tool --tool-path $(Agent.ToolsDirectory)/dotnet/tools
+    $(Agent.ToolsDirectory)/dotnet/tools/dotnet-gitversion /output json /output buildserver /updateprojectfiles
+  displayName: SemVer GitVersion
+
+- script: |
+    dotnet restore --nologo -r linux-x64
+    dotnet build --nologo -c $(buildConfiguration)
+  displayName: Build Application
+  workingDirectory: app
+
+- script: docker build -f Dockerfile -t lsquared/weather:$(GitVersion.SemVer) -t lsquared/weather:latest .
+  displayName: Create OCI Image
+  workingDirectory: app
+
+- task: DownloadSecureFile@1
+  name: dockerhub_pat
+  inputs:
+    secureFile: dockerhub_pat.key
+    retryCount: 2
+
+- script: |
+    cat $(dockerhub_pat.secureFilePath) | docker login --username lsquared --password-stdin
+    docker push lsquared/weather:$(GitVersion.SemVer)
+    docker push lsquared/weather:latest
+  displayName: Push OCI Image to DockerHub
+  condition: ne(variables['Build.Reason'], 'PullRequest')
