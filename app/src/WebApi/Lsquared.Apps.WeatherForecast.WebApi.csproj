@@ -4,6 +4,10 @@
 		<UserSecretsId>ab869413-c723-447b-8948-d1877546289d</UserSecretsId>
 	</PropertyGroup>
 
+  <PropertyGroup>
+    <ContainerImageName>lsquared/apps_weather</ContainerImageName>
+  </PropertyGroup>
+
 	<ItemGroup>
 		<Using Include="Lsquared.Apps" />
 		<Using Include="Lsquared.Apps.WeatherForecast" />
