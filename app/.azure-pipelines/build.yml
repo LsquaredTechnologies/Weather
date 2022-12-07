@@ -41,15 +41,15 @@ steps:
     $(Agent.ToolsDirectory)/dotnet/tools/dotnet-gitversion /output json /output buildserver /updateprojectfiles
   displayName: SemVer GitVersion
 
-- script: dotnet restore --nologo
+- script: dotnet restore --nologo -r linux-x64
   displayName: Restore
   workingDirectory: app
 
-- script: dotnet build --nologo --no-restore -c $(buildConfiguration)
+- script: dotnet build --nologo --no-restore -r linux-x64 -c $(buildConfiguration)
   displayName: Build
   workingDirectory: app
 
-- script: dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -t:PublishContainer -p:PublishProfile=DefaultContainer
+- script: dotnet publish --nologo --no-build src/WebApi -r linux-x64 -c $(buildConfiguration) --os linux --arch x64 -t:PublishContainer -p:PublishProfile=DefaultContainer
   displayName: Create OCI Image
   workingDirectory: app
 
