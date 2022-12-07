@@ -4,6 +4,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ===== Configures services to the root container ===== //
 
+_ = builder.ConfigureConfiguration();
+
 _ = builder.Services.AddControllersWithViews();
 _ = builder.Services.AddRazorPages();
 _ = builder.Services.AddEndpointsApiExplorer();
