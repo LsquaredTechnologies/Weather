@@ -22,7 +22,7 @@
         <ol class=cities>
             @foreach (var city in ConflictCities)
             {
-                <li @key=@city><span @onclick=@(() => GetWeatherAndForecast(city))>@city.Name, @city.Country</span></li>
+                <li @key=@city @onclick=@(() => GetWeatherAndForecast(city))><span>@city.Name, @city.Country</span></li>
             }
         </ol>
     }
