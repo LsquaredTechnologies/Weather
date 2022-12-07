@@ -47,7 +47,7 @@ steps:
   displayName: Build Application
   workingDirectory: app
 
-- script: dotnet publish --nologo src/WebApi -c $(buildConfiguration) --os linux --arch x64 -t:PublishContainer -p:PublishProfile=DefaultContainer
+- script: docker build -t $(GitVersion.SemVer) latest -f src/WebApi/Dockerfile .
   displayName: Create OCI Image
   workingDirectory: app
 
@@ -58,7 +58,7 @@ steps:
 
 - script: |
     cat dockerhub_pat.key | docker login --username lsquared --password-stdin
-    docker push lsquared/apps_weather:$(GitVersion.SemVer)
-    docker push lsquared/apps_weather:latest
+    docker push lsquared/weather:$(GitVersion.SemVer)
+    docker push lsquared/weather:latest
   displayName: Push OCI Image to DockerHub
   condition: ne(variables['Build.Reason'], 'PullRequest')
