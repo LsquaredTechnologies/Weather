@@ -1,0 +1,65 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+    - app
+    exclude:
+    - app/.azure-pipelines
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+    - app
+    exclude:
+    - app/.azure-pipelines
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  dotnetVersion: '7.0'
+  buildConfiguration: 'Release'
+
+steps:
+
+- checkout: self
+  fetchDepth: 0
+
+- task: UseDotNet@2
+  displayName: 'Install .NET $(dotnetVersion) SDK'
+  inputs:
+    packageType: 'sdk'
+    version: '$(dotnetVersion).x'
+
+- script: |
+    dotnet tool install GitVersion.Tool --tool-path $(Agent.ToolsDirectory)/dotnet/tools
+    $(Agent.ToolsDirectory)/dotnet/tools/dotnet-gitversion /output json /output buildserver /updateprojectfiles
+  displayName: SemVer GitVersion Install
+
+- script: dotnet restore --nologo
+  displayName: Restore
+  workingDirectory: app
+
+- script: dotnet build --nologo --no-restore -c $(buildConfiguration)
+  displayName: Build
+  workingDirectory: app
+
+- script: |
+    dotnet publish --nologo --no-build src/WebApi -c $(buildConfiguration) --os linux --arch x64 -p:PublishProfile=DefaultContainer -t:PublishContainer -p:ContainerImageTags=$(GitVersion_SemVer);latest
+    docker login -u lsquared
+  displayName: Create OCI Image
+  workingDirectory: app
+
+- task: Docker@2
+  displayName: Push OCI Image to DockerHub
+  inputs:
+    containerRegistry: 'LsquaredTechnologies DockerHub'
+    command: 'push'
+    tags: |
+      $(GitVersion_SemVer)
+      latest
