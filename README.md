@@ -19,10 +19,10 @@ The weather and forecast information are retrieve using [OpenWeatherMap](https:/
 
 I plan to:
 
-- optimize styles with SASS and transpile into CSS with gulp (or another tool?)
-- create an OCI (docker) image and publish it on DockerHub to let anyone test it locally
-- create a pipeline to build and deploy the application (with both Azure Pipelines and Github Actions?)
-- deploy Azure infrastructure with terraform
+- [ ] optimize styles with SASS and transpile into CSS with gulp (or another tool?)
+- [ ] create an OCI (docker) image and publish it on DockerHub to let anyone test it locally
+- [ ] create a pipeline to build and deploy the application (with both Azure Pipelines and Github Actions?)
+- [ ] deploy Azure infrastructure with terraform (in progress)
 
 ## Contributing
 
