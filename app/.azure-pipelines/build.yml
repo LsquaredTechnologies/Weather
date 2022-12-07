@@ -42,8 +42,8 @@ steps:
   displayName: SemVer GitVersion
 
 - script: |
-    dotnet restore --nologo 
-    dotnet build --nologo -r linux-x64 -c $(buildConfiguration)
+    dotnet restore --nologo -r linux-x64
+    dotnet build --nologo -c $(buildConfiguration)
   displayName: Build Application
   workingDirectory: app
 
