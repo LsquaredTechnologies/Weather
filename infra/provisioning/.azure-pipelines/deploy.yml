@@ -1,0 +1,73 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+    - infra
+    exclude:
+    - infra/.azure-pipelines
+
+pr:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+    - infra
+    exclude:
+    - infra/.azure-pipelines
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+
+- task: TerraformInstaller@0
+  displayName: Install TF
+  inputs:
+    terraformVersion: 'latest'
+
+- task: DownloadSecureFile@1
+  displayName: Download secure file
+  name: tfbackend
+  inputs:
+    secureFile: config.azurerm.tfbackend
+    retryCount: 2
+
+- script: terraform init --backend-config=$(tfbackend.secureFilePath)
+  displayName: Initialize TF
+  workingDirectory: 'infra/provisioning'
+
+- script: terraform init --backend-config=$(tfbackend.secureFilePath)
+  displayName: Validate TF
+  workingDirectory: 'infra/provisioning'
+
+- task: DownloadSecureFile@1
+  displayName: Download secure file
+  name: dev_tfvars
+  inputs:
+    secureFile: dev.tfvars
+    retryCount: 2
+
+- task: TerraformTaskV3@3
+  displayName: Plan TF
+  inputs:
+    provider: 'azurerm'
+    command: 'plan'
+    workingDirectory: 'infra/provisioning'
+    commandOptions: '-var-file=$(dev_tfvars.secureFilePath) -out $(Build.ArtifactStagingDirectory)/tfplan'
+    environmentServiceNameAzureRM: 'Azure Weather RG'
+
+- publish: $(Build.ArtifactStagingDirectory)/tfplan
+  artifact: tfplan
+  displayName: Publish TF Plan
+
+- task: TerraformTaskV3@3
+  displayName: Apply TF
+  inputs:
+    provider: 'azurerm'
+    command: 'apply'
+    workingDirectory: 'infra/provisioning'
+    commandOptions: '$(Build.ArtifactStagingDirectory)/tfplan'
+    environmentServiceNameAzureRM: 'Azure Weather RG'

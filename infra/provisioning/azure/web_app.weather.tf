@@ -11,6 +11,11 @@ resource "azurerm_linux_web_app" "weather" {
     http2_enabled = true
   }
 
+  app_settings = {
+    "ASPNETCORE_ENVIRONMENT"     = var.environment
+    "APPCONFIG_CONNECTIONSTRING" = azurerm_app_configuration.appconf.primary_read_key.0.connection_string
+  }
+
   tags = {
     Environment = var.environment
   }

@@ -1,4 +1,4 @@
 locals {
-  location = lower(replace(var.location, " ", ""))
+  location    = lower(replace(var.location, " ", ""))
   environment = lower(var.environments[lower(var.environment)])
 }
