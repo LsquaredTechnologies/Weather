@@ -1,0 +1,41 @@
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: ["main"]
+    paths:  ["infra"]
+  push:
+    branches: ["main"]
+    paths:  ["infra"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Install TF
+      uses: hashicorp/setup-terraform@v2.0.3
+      with:
+        terraform_version: latest
+
+    - name: Initialize TF
+      run: terraform init --backend-config=${{ secrets.TF_BACKEND }}
+      working-directory: 'infra/provisioning'
+
+    - name: Validate TF
+      run: terraform validate --backend-config=${{ secrets.TF_BACKEND }}
+      working-directory: 'infra/provisioning'
+
+    - name: Plan TF
+      uses: Pwd9000-ML/terraform-azurerm-plan@v1.2.6
+      with:
+        path: 'infra/provisioning'
+        tf_vars_file: ${{ secrets.TF_VARS }}
+        az_resource_group: ''
+        az_container_name: ''
+
+    - name: Apply TF
+      uses: Pwd9000-ML/terraform-azurerm-apply@v1.2.6
+      if: github.event_name != 'pull_request'
+      with:
+        az_resource_group: ''
+        az_container_name: ''
